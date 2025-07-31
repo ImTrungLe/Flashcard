@@ -1,6 +1,6 @@
 import { type ComponentProps } from "react";
 
-const IconHome = (props: ComponentProps<"svg">) => {
+const IconTrash = (props: ComponentProps<"svg">) => {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -19,4 +19,4 @@ const IconHome = (props: ComponentProps<"svg">) => {
     );
 };
 
-export default IconHome;
+export default IconTrash;

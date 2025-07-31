@@ -6,3 +6,7 @@ export { default as IconBar } from "./IconBar";
 export { default as IconPencil } from "./IconPencil";
 export { default as IconBell } from "./IconBell";
 export { default as IconClose } from "./IconClose";
+export { default as IconAdd } from "./IconAdd";
+export { default as IconSun } from "./IconSun";
+export { default as IconMoon } from "./IconMoon";
+export { default as IconDocPlus } from "./IconDocPlus";

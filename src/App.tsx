@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Routes, Route, Outlet } from "react-router-dom";
 import { StoreProvider } from "easy-peasy";
 
@@ -6,16 +7,16 @@ import { Sidebar, Navbar } from "./components";
 import MobileSidebar from "./components/MobileSidebar";
 
 import store from "./store";
-function Layout() {
+function Layout({ theme, setTheme }) {
     return (
-        <div className="relative w-full h-full flex flex-col md:flex-row">
+        <div className={`relative w-full h-full flex flex-col md:flex-row`}>
             <MobileSidebar />
             <div className="w-1/5 h-screen bg-white sticky top-0 hidden lg:block">
                 <Sidebar />
             </div>
 
             <div className="flex-1 overflow-y-auto">
-                <Navbar />
+                <Navbar theme={theme} setTheme={setTheme} />
                 <div className="p-4 2xl:px-10">
                     <Outlet />
                 </div>
@@ -25,11 +26,14 @@ function Layout() {
 }
 
 function App() {
+    const [theme, setTheme] = useState("");
     return (
         <StoreProvider store={store}>
-            <main className="w-full min-h-screen bg-[#f3f4f6]">
+            <main className={`w-full min-h-screen bg-[#f3f4f6]`}>
                 <Routes>
-                    <Route element={<Layout />}>
+                    <Route
+                        element={<Layout theme={theme} setTheme={setTheme} />}
+                    >
                         <Route index element={<Home />} />
                         <Route path="/trash" element={<Trash />} />
                         <Route path="/words" element={<Words />} />

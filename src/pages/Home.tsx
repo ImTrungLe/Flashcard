@@ -1,7 +1,17 @@
+import { useStoreState } from "easy-peasy";
 import { BarChart } from "../components";
 
-import { summary } from "../assets/data";
 const Home = () => {
+    const initialData = useStoreState((state) => state.words);
+    const dataSample = initialData.reduce((acc, item) => {
+        acc[item.stage] = (acc[item.stage] || 0) + 1;
+        return acc;
+    }, {});
+    const summary = {
+        totalWords: initialData.length,
+        last10Words: initialData.slice(-10),
+        words: dataSample,
+    };
     const totals = summary.words;
     const stats = [
         {

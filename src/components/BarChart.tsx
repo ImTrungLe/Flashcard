@@ -1,4 +1,3 @@
-// BarChart.tsx
 import {
     Chart as ChartJS,
     BarElement,

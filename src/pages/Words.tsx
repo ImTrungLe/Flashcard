@@ -1,92 +1,192 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useStoreState, useStoreActions } from "easy-peasy";
+import {
+    DndContext,
+    closestCenter,
+    DragOverlay,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core";
+import {
+    arrayMove,
+    SortableContext,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
-import Title from "../components/Title";
-import Tabs from "../components/Tabs";
-import WordTitle from "../components/WordTitle";
-import { WordCard } from "../components";
-
-const TABS = [
-    {
-        title: "Board View",
-        icon: "",
-    },
-    {
-        title: "List View",
-        icon: "",
-    },
-];
-
-const WORD_TYPE = {
-    new: "bg-blue-600",
-    learning: "bg-yellow-600",
-    done: "bg-green-600",
-};
-
-const data = [
-    {
-        _id: "1",
-        content: "Vocabulary",
-        stage: "new",
-    },
-    {
-        _id: "2",
-        content: "English",
-        stage: "learning",
-    },
-    {
-        _id: "3",
-        content: "Yard",
-        stage: "learning",
-    },
-    {
-        _id: "4",
-        content: "Hard",
-        stage: "done",
-    },
-];
-
-const groupedData = {
-    new: data.filter((word) => word.stage === "new"),
-    learning: data.filter((word) => word.stage === "learning"),
-    done: data.filter((word) => word.stage === "done"),
-};
+import { WordCard, WordTitle } from "../components";
+import { WORD_TYPE } from "../assets/data";
+import DroppableColumn from "../components/DroppableColumn";
+import SortableWordCard from "../components/SortableWordCard";
+// Sortable WordCard
 
 const Words = () => {
-    const params = useParams();
+    const storeWords = useStoreState((state) => state.words);
+    const updateWordStage = useStoreActions(
+        (actions) => actions.updateWordStage
+    );
+    const clearWords = useStoreActions((actions) => actions.clearWords);
 
-    // const [selected, setSelected] = useState(0);
-    // const [open, setOpen] = useState(false);
+    const [columns, setColumns] = useState({
+        new: [],
+        learning: [],
+        done: [],
+    });
 
-    const status = params?.status || "";
+    useEffect(() => {
+        setColumns({
+            new: storeWords.filter((d) => d.stage === "new"),
+            learning: storeWords.filter((d) => d.stage === "learning"),
+            done: storeWords.filter((d) => d.stage === "done"),
+        });
+    }, [storeWords]);
+
+    const [activeCard, setActiveCard] = useState(null);
+    const sensors = useSensors(useSensor(PointerSensor));
+
+    const findColumnById = (id) => {
+        return Object.keys(columns).find((col) =>
+            columns[col].some((item) => item._id === id)
+        );
+    };
+
+    const handleDragStart = (event) => {
+        const { active } = event;
+        const column = findColumnById(active.id);
+        const item = columns[column].find((i) => i._id === active.id);
+        setActiveCard(item);
+    };
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+        setActiveCard(null);
+        if (!over) return;
+
+        const sourceCol = findColumnById(active.id);
+        if (!sourceCol) return;
+
+        let destCol = findColumnById(over.id);
+        let overIndex = -1;
+
+        if (columns[over.id]) {
+            destCol = over.id;
+        } else {
+            overIndex = columns[destCol].findIndex((i) => i._id === over.id);
+        }
+
+        if (!destCol) return;
+
+        const activeIndex = columns[sourceCol].findIndex(
+            (i) => i._id === active.id
+        );
+        const item = { ...columns[sourceCol][activeIndex], stage: destCol };
+
+        if (sourceCol === destCol) {
+            if (activeIndex !== overIndex && overIndex !== -1) {
+                const newItems = arrayMove(
+                    columns[sourceCol],
+                    activeIndex,
+                    overIndex
+                );
+                setColumns((prev) => ({ ...prev, [sourceCol]: newItems }));
+            }
+        } else {
+            setColumns((prev) => {
+                const newSource = [...prev[sourceCol]];
+                newSource.splice(activeIndex, 1);
+
+                const newDest = [...prev[destCol]];
+                const insertAt = overIndex === -1 ? newDest.length : overIndex;
+                newDest.splice(insertAt, 0, item);
+
+                return {
+                    ...prev,
+                    [sourceCol]: newSource,
+                    [destCol]: newDest,
+                };
+            });
+        }
+    };
 
     return (
-        <div className="w-full">
-            <div className="flex items-center justify-between mb-4">
-                <Title
-                    title={status ? `${status} Words` : "Words"}
-                    className={"text-4xl"}
-                />
+        <>
+            <div className="w-full flex flex-row justify-between items-end">
+                <div className="text-xl font-bold">Words in Flashcard</div>
+                <div className="flex flex-row gap-4">
+                    <button
+                        className="flex justify-end px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400"
+                        onClick={() => {
+                            const updatedWords = Object.entries(
+                                columns
+                            ).flatMap(([stage, words]) =>
+                                words.map((w) => ({
+                                    ...w,
+                                    stage,
+                                }))
+                            );
+                            updateWordStage(updatedWords); // Gửi danh sách đã cập nhật sang store hoặc API
+                        }}
+                    >
+                        Save changed
+                    </button>
+                    <button
+                        className="flex justify-end px-4 py-2 bg-red-400 text-white rounded hover:bg-red-300"
+                        onClick={() => {
+                            const updatedWords = Object.entries(
+                                columns
+                            ).flatMap(([stage, words]) =>
+                                words.map((w) => ({
+                                    ...w,
+                                    stage,
+                                }))
+                            );
+                            // Xoá toàn bộ danh sách
+                            clearWords();
+                        }}
+                    >
+                        Delete all
+                    </button>
+                </div>
             </div>
-
-            <div className="flex w-full gap-6">
-                {["new", "learning", "done"].map((status) => (
-                    <div key={status} className="flex-1">
-                        <WordTitle
-                            label={status}
-                            className={WORD_TYPE[status]}
-                        />
-                        <div className="mt-4 flex flex-col gap-4">
-                            {data
-                                .filter((word) => word.stage === status)
-                                .map((word, index) => (
-                                    <WordCard word={word} key={index} />
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="flex gap-4 p-4">
+                    {Object.entries(columns).map(([colName, items]) => (
+                        <DroppableColumn key={colName} id={colName}>
+                            <WordTitle
+                                label={colName}
+                                className={`${WORD_TYPE[colName]}`}
+                            />
+                            <SortableContext
+                                items={items.map((item) => item._id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                {items.map((item) => (
+                                    <SortableWordCard
+                                        key={item._id}
+                                        word={item}
+                                    />
                                 ))}
+                            </SortableContext>
+                        </DroppableColumn>
+                    ))}
+                </div>
+
+                <DragOverlay
+                    dropAnimation={{ duration: 300, easing: "ease-out" }}
+                >
+                    {activeCard ? (
+                        <div className="scale-105 opacity-90 shadow-lg pointer-events-none">
+                            <WordCard word={activeCard} disableActions />
                         </div>
-                    </div>
-                ))}
-            </div>
-        </div>
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
+        </>
     );
 };
 
