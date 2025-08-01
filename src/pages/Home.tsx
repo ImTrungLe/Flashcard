@@ -1,5 +1,5 @@
 import { useStoreState } from "easy-peasy";
-import { BarChart, LineChart } from "../components";
+import { BarChart } from "../components";
 
 const Home = () => {
     const initialData = useStoreState((state) => state.words);
