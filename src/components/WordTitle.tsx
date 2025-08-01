@@ -3,7 +3,7 @@ import React from "react";
 
 const WordTitle = ({ label, className }) => {
     return (
-        <div className="w-full h-10 md:h-12 px-3 md:px-4 rounded bg-white flex items-center justify-between border-b border-gray-200 shadow-sm">
+        <div className="w-full h-10 md:h-12 px-3 md:px-4 rounded bg-white flex items-center justify-between border-b border-gray-200 shadow-sm dark:bg-gray-800">
             <div className="flex gap-2 items-center">
                 <div
                     className={clsx(
@@ -11,7 +11,7 @@ const WordTitle = ({ label, className }) => {
                         className
                     )}
                 />
-                <p className="text-sm md:text-base font-medium text-gray-700 capitalize">
+                <p className="text-sm md:text-base font-medium text-gray-700 capitalize dark:text-white">
                     {label}
                 </p>
             </div>

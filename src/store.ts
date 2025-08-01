@@ -4,12 +4,13 @@ export interface WordType {
     _id: string;
     content: string;
     stage: "new" | "learning" | "done";
+    definition: string;
 }
 export interface StoreModel {
     isOpen: boolean;
     inputValue: string;
     word: string;
-    words: WordType[];         
+    words: WordType[];
 
     handleOpenSidebar: Action<StoreModel>;
     handleCloseSidebar: Action<StoreModel>;
@@ -22,26 +23,28 @@ export interface StoreModel {
     setWords: Action<StoreModel, WordType[]>;
     addWord: Action<StoreModel>;
     updateWordStage: Action<StoreModel>;
-    removeWord: Action<StoreModel, string>;       
-    clearWords: Action<StoreModel>;    
+    removeWord: Action<StoreModel, string>;
+    clearWords: Action<StoreModel>;
+
+    updateDefinition: Action<StoreModel, { id: string; definition: string }>;
 }
 
-const initialData:WordType[] = [
-    { _id: "1", content: "Vocabulary", stage: "new" },
-    { _id: "2", content: "English", stage: "learning" },
-    { _id: "3", content: "Yard", stage: "learning" },
-    { _id: "4", content: "Hard", stage: "done" },
-    { _id: "5", content: "Maintain", stage: "new" },
-    { _id: "6", content: "Legacy", stage: "new" },
-    { _id: "7", content: "Notebook", stage: "learning" },
-    { _id: "8", content: "Job", stage: "done" },
-    { _id: "9", content: "Football", stage: "new" },
-    { _id: "10", content: "Family", stage: "done" },
-    { _id: "11", content: "Difficult", stage: "learning" },
-    { _id: "12", content: "Popular", stage: "done" },
-    { _id: "13", content: "Polite", stage: "new" },
-    { _id: "14", content: "Police", stage: "new" },
-    { _id: "15", content: "Vietnamese", stage: "done" },
+const initialData: WordType[] = [
+    { _id: "1", content: "Vocabulary", stage: "new", definition: "" },
+    { _id: "2", content: "English", stage: "learning", definition: "" },
+    { _id: "3", content: "Yard", stage: "learning", definition: "" },
+    { _id: "4", content: "Hard", stage: "done", definition: "" },
+    { _id: "5", content: "Maintain", stage: "new", definition: "" },
+    { _id: "6", content: "Legacy", stage: "new", definition: "" },
+    { _id: "7", content: "Notebook", stage: "learning", definition: "" },
+    { _id: "8", content: "Job", stage: "done", definition: "" },
+    { _id: "9", content: "Football", stage: "new", definition: "" },
+    { _id: "10", content: "Family", stage: "done", definition: "" },
+    { _id: "11", content: "Difficult", stage: "learning", definition: "" },
+    { _id: "12", content: "Popular", stage: "done", definition: "" },
+    { _id: "13", content: "Polite", stage: "new", definition: "" },
+    { _id: "14", content: "Police", stage: "new", definition: "" },
+    { _id: "15", content: "Vietnamese", stage: "done", definition: "" },
 ];
 
 const getStoredWords = (): WordType[] => {
@@ -49,7 +52,7 @@ const getStoredWords = (): WordType[] => {
     return stored ? JSON.parse(stored) : initialData;
 };
 
-const storeModel:StoreModel = {
+const storeModel: StoreModel = {
     isOpen: false,
     inputValue: "",
     word: "",
@@ -102,16 +105,22 @@ const storeModel:StoreModel = {
         localStorage.setItem("words", JSON.stringify(state.words));
     }),
 
-    updateWordStage: action((state, updatedWords) => {
-        updatedWords.forEach((updated) => {
-            const index = state.words.findIndex((w) => w._id === updated._id);
-            if (index !== -1) {
-                state.words[index].stage = updated.stage;
-            }
-        });
+    // updateWordStage: action((state, updatedWords) => {
+    //     updatedWords.forEach((updated) => {
+    //         const index = state.words.findIndex((w) => w._id === updated._id);
+    //         if (index !== -1) {
+    //             state.words[index].stage = updated.stage;
+    //         }
+    //     });
 
-        // Optionally, lưu lại vào localStorage
-        localStorage.setItem("words", JSON.stringify(state.words));
+    //     localStorage.setItem("words", JSON.stringify(state.words));
+    // }),
+    updateWordStage: action((state, newColumns) => {
+        // Flatten tất cả các cột thành một mảng duy nhất (giữ thứ tự từng cột)
+        const merged = Object.values(newColumns).flat();
+        state.words = merged;
+
+        localStorage.setItem("words", JSON.stringify(merged));
     }),
 
     removeWord: action((state, id) => {
@@ -125,6 +134,14 @@ const storeModel:StoreModel = {
         localStorage.setItem("words", JSON.stringify([]));
     }),
 
+    updateDefinition: action((state, payload) => {
+        const { id, definition } = payload;
+        const index = state.words.findIndex((word) => word._id === id);
+        if (index !== -1) {
+            state.words[index].definition = definition;
+            localStorage.setItem("words", JSON.stringify(state.words));
+        }
+    }),
 };
 
 const store = createStore<StoreModel>(storeModel);

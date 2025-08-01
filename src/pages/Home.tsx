@@ -1,5 +1,5 @@
 import { useStoreState } from "easy-peasy";
-import { BarChart } from "../components";
+import { BarChart, LineChart } from "../components";
 
 const Home = () => {
     const initialData = useStoreState((state) => state.words);
@@ -24,7 +24,7 @@ const Home = () => {
             _id: "2",
             label: "NEW WORDS",
             total: totals["new"] || 0,
-            bg: "bg-[#0f766e]",
+            bg: "bg-[#0f3876]",
         },
         {
             _id: "3",
@@ -42,12 +42,16 @@ const Home = () => {
 
     const Card = ({ label, count }) => {
         return (
-            <div className="w-full h-32 bg-white p-5 shadow-md rounded-md flex items-center justify-between">
+            <div className="w-full h-32 bg-white dark:bg-[#1f2937] p-5 shadow-md rounded-md flex items-center justify-between transition-colors">
                 <div className="h-full flex flex-1 flex-col justify-between">
-                    <p className="test-base text-gray-600">{label}</p>
-                    <span className="text-2xl font-semibold">{count}</span>
-                    <span className="text-sm text-gray-400">
-                        {"last month"}
+                    <p className="text-base text-gray-700 dark:text-gray-300">
+                        {label}
+                    </p>
+                    <span className="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {count}
+                    </span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500">
+                        last month
                     </span>
                 </div>
             </div>
@@ -60,7 +64,7 @@ const Home = () => {
             {
                 label: "Stage",
                 data: [totals["new"], totals["learning"], totals["done"]],
-                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                backgroundColor: "rgba(87, 192, 75, 0.6)",
                 borderRadius: 4,
             },
         ],
@@ -74,8 +78,8 @@ const Home = () => {
                 })}
             </div>
 
-            <div className="w-full bg-white my-16 p-4 rounded shadow-sm">
-                <h4 className="text-xl text-gray-600 font-semibold">
+            <div className="w-full h-full bg-white dark:bg-[#161b22] my-16 p-4 rounded shadow-sm transition-colors">
+                <h4 className="text-xl text-gray-700 dark:text-gray-200 font-semibold">
                     Chart by stage
                 </h4>
                 <BarChart data={data} />

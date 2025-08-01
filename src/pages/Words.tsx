@@ -34,6 +34,7 @@ const Words = () => {
     });
 
     useEffect(() => {
+        console.log(storeWords);
         setColumns({
             new: storeWords.filter((d) => d.stage === "new"),
             learning: storeWords.filter((d) => d.stage === "learning"),
@@ -88,23 +89,28 @@ const Words = () => {
                     activeIndex,
                     overIndex
                 );
-                setColumns((prev) => ({ ...prev, [sourceCol]: newItems }));
+                const newCols = {
+                    ...columns,
+                    [sourceCol]: newItems,
+                };
+                setColumns(newCols);
+                updateWordStage(newCols);
             }
         } else {
-            setColumns((prev) => {
-                const newSource = [...prev[sourceCol]];
-                newSource.splice(activeIndex, 1);
+            const newSource = [...columns[sourceCol]];
+            newSource.splice(activeIndex, 1);
 
-                const newDest = [...prev[destCol]];
-                const insertAt = overIndex === -1 ? newDest.length : overIndex;
-                newDest.splice(insertAt, 0, item);
+            const newDest = [...columns[destCol]];
+            const insertAt = overIndex === -1 ? newDest.length : overIndex;
+            newDest.splice(insertAt, 0, item);
 
-                return {
-                    ...prev,
-                    [sourceCol]: newSource,
-                    [destCol]: newDest,
-                };
-            });
+            const newCols = {
+                ...columns,
+                [sourceCol]: newSource,
+                [destCol]: newDest,
+            };
+            setColumns(newCols);
+            updateWordStage(newCols);
         }
     };
 
@@ -114,33 +120,8 @@ const Words = () => {
                 <div className="text-xl font-bold">Words in Flashcard</div>
                 <div className="flex flex-row gap-4">
                     <button
-                        className="flex justify-end px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400"
-                        onClick={() => {
-                            const updatedWords = Object.entries(
-                                columns
-                            ).flatMap(([stage, words]) =>
-                                words.map((w) => ({
-                                    ...w,
-                                    stage,
-                                }))
-                            );
-                            updateWordStage(updatedWords); // Gửi danh sách đã cập nhật sang store hoặc API
-                        }}
-                    >
-                        Save changed
-                    </button>
-                    <button
                         className="flex justify-end px-4 py-2 bg-red-400 text-white rounded hover:bg-red-300"
                         onClick={() => {
-                            const updatedWords = Object.entries(
-                                columns
-                            ).flatMap(([stage, words]) =>
-                                words.map((w) => ({
-                                    ...w,
-                                    stage,
-                                }))
-                            );
-                            // Xoá toàn bộ danh sách
                             clearWords();
                         }}
                     >
