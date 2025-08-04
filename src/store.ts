@@ -1,5 +1,6 @@
 import { action, type Action, createStore } from "easy-peasy";
 
+import { v4 as uuidv4 } from "uuid";
 export interface WordType {
     _id: string;
     content: string;
@@ -91,7 +92,7 @@ const storeModel: StoreModel = {
         const trimmed = state.inputValue.trim();
         if (trimmed === "") return;
 
-        const newId = String(state.words.length + 1);
+        const newId = uuidv4();
         const newWord = {
             _id: newId,
             content: trimmed,

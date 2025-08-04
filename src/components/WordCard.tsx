@@ -34,7 +34,6 @@ const WordCard = ({ word, disableActions = false }) => {
             const examplesMatch = text.match(/Examples:\s*([\s\S]*)/);
 
             const definition = definitionMatch ? definitionMatch[1].trim() : "";
-            console.log(definition);
 
             const examples = examplesMatch
                 ? examplesMatch[1]

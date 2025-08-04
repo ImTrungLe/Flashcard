@@ -37,7 +37,7 @@ const Words = () => {
     const [filteredColumns, setFilteredColumns] = useState(columns);
 
     useEffect(() => {
-        console.log(storeWords);
+        console.log("words:", storeWords);
         setColumns({
             new: storeWords.filter((d) => d.stage === "new"),
             learning: storeWords.filter((d) => d.stage === "learning"),

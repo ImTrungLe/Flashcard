@@ -53,7 +53,6 @@ const Navbar = () => {
                         onChange={handleGetWord}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                                console.log(e);
                                 handleAddWord();
                             }
                         }}
@@ -74,9 +73,9 @@ const Navbar = () => {
                         onClick={() => setDarkMode(!darkMode)}
                     >
                         {darkMode ? (
-                            <IconMoon className="size-5" />
-                        ) : (
                             <IconSun className="size-5" />
+                        ) : (
+                            <IconMoon className="size-5" />
                         )}
                     </button>
                 </div>
