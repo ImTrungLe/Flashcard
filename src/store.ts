@@ -105,16 +105,6 @@ const storeModel: StoreModel = {
         localStorage.setItem("words", JSON.stringify(state.words));
     }),
 
-    // updateWordStage: action((state, updatedWords) => {
-    //     updatedWords.forEach((updated) => {
-    //         const index = state.words.findIndex((w) => w._id === updated._id);
-    //         if (index !== -1) {
-    //             state.words[index].stage = updated.stage;
-    //         }
-    //     });
-
-    //     localStorage.setItem("words", JSON.stringify(state.words));
-    // }),
     updateWordStage: action((state, newColumns) => {
         // Flatten tất cả các cột thành một mảng duy nhất (giữ thứ tự từng cột)
         const merged = Object.values(newColumns).flat();

@@ -12,6 +12,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
         legend: {
             position: "top" as const,
@@ -28,7 +29,11 @@ const options = {
 };
 
 const BarChart = ({ data }) => {
-    return <Bar data={data} options={options} />;
+    return (
+        <div className="h-[490px]">
+            <Bar data={data} options={options} />
+        </div>
+    );
 };
 
 export default BarChart;

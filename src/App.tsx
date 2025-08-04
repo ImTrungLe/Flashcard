@@ -15,10 +15,12 @@ function Layout() {
                 <Sidebar />
             </div>
 
-            <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#0f1117]">
+            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-[#0f1117]">
                 <Navbar />
-                <div className="p-4 2xl:px-10">
-                    <Outlet />
+                <div className="flex-1 overflow-y-auto">
+                    <div className="p-4 2xl:px-10">
+                        <Outlet />
+                    </div>
                 </div>
             </div>
         </div>

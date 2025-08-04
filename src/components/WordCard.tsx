@@ -9,6 +9,8 @@ import { generateDefinitionAndExamples } from "../utils/gemini";
 const WordCard = ({ word, disableActions = false }) => {
     const [showPopup, setShowPopup] = useState(false);
     const [inputValue, setInputValue] = useState("");
+    const [definition, setDefinition] = useState("");
+    const [examples, setExamples] = useState("");
     const [loading, setLoading] = useState(false);
     const updateDef = useStoreActions((actions) => actions.updateDefinition);
 
@@ -19,13 +21,58 @@ const WordCard = ({ word, disableActions = false }) => {
     const handleGenerate = async () => {
         setLoading(true);
         const content = await generateDefinitionAndExamples(word.content);
-        updateDef({ id: word._id, definition: content });
+        setInputValue(content); // vẫn lưu raw
+        const parsed = handleDefinition(content);
+        setDefinition(parsed?.definition || "");
+        setExamples(parsed?.examples?.join("\n") || "");
         setLoading(false);
+    };
+
+    const handleDefinition = (text: string) => {
+        if (text) {
+            const definitionMatch = text.match(/Definition:\s*(.+)/);
+            const examplesMatch = text.match(/Examples:\s*([\s\S]*)/);
+
+            const definition = definitionMatch ? definitionMatch[1].trim() : "";
+            console.log(definition);
+
+            const examples = examplesMatch
+                ? examplesMatch[1]
+                      .split(/\n+/)
+                      .map((line) => line.trim())
+                      .filter((line) => line !== "")
+                : [];
+
+            return { definition, examples };
+        } else {
+            return { definition: "", examples: [] };
+        }
+    };
+
+    const handleSaveChange = () => {
+        const parts = [];
+
+        if (definition.trim()) {
+            parts.push(`Definition:${definition}`);
+        }
+        if (examples.trim()) {
+            parts.push(`Examples:${examples}`);
+        }
+
+        const fullDefinition = parts.join("\n");
+
+        updateDef({
+            id: word._id,
+            definition: fullDefinition,
+        });
     };
 
     useEffect(() => {
         if (showPopup) {
             setInputValue(word.definition || "");
+            const parsed = handleDefinition(word.definition);
+            setDefinition(parsed.definition);
+            setExamples(parsed.examples.join("\n") || "");
         }
     }, [showPopup, word.definition]);
 
@@ -39,7 +86,7 @@ const WordCard = ({ word, disableActions = false }) => {
                 <p className="ftext-xs text-gray-400 capitalize tracking-wide mb-2 dark:text-white">
                     {word.stage}
                 </p>
-                <p className="text-lg font-semibold text-gray-800 dark:text-white">
+                <p className="text-lg font-semibold capitalize text-gray-800 dark:text-white">
                     {word.content}
                 </p>
             </div>
@@ -57,61 +104,81 @@ const WordCard = ({ word, disableActions = false }) => {
                             showPopup={showPopup}
                             setShowPopup={setShowPopup}
                         >
-                            <h2 className="text-2xl font-semibold mb-2">
-                                {word.content}
-                            </h2>
-                            <div>
-                                <Textarea
-                                    name="description"
-                                    className="w-full h-26 p-2 mb-2 border-[0.5px] rounded-md data-hover:shadow dark:bg-gray-500"
+                            <div className="flex justify-between items-center my-6">
+                                <button
+                                    onClick={handleGenerate}
+                                    disabled={loading}
                                     onPointerDown={(e) => e.stopPropagation()}
-                                    placeholder="Type here to define"
-                                    onChange={(e) => {
-                                        setInputValue(e.target.value);
-                                    }}
-                                    value={inputValue}
-                                />
-                            </div>
-                            <div className="w-full flex flex-row justify-between">
-                                <div className="w-full">
-                                    <Button
-                                        onClick={handleGenerate}
-                                        onPointerDown={(e) =>
-                                            e.stopPropagation()
-                                        }
-                                        className="rounded bg-yellow-600 px-4 py-2 text-sm text-white data-hover:bg-yello-500 data-hover:data-active:bg-yellow-700"
-                                    >
-                                        {loading
-                                            ? "Loading..."
-                                            : "Gemini generate"}
-                                    </Button>
-                                </div>
-                                <div className="w-full justify-end flex flex-row gap-2">
-                                    <Button
+                                    className="px-4 py-2 rounded-full bg-gradient-to-r from-green-400 to-cyan-400 text-white font-semibold"
+                                >
+                                    {loading
+                                        ? "Loading..."
+                                        : "Gemnerate with Gemini"}
+                                </button>
+                                <div className="space-x-2">
+                                    <button
+                                        disabled={loading}
                                         onClick={() => {
-                                            updateDef({
-                                                id: word._id,
-                                                definition: inputValue,
-                                            });
+                                            handleSaveChange();
                                             setShowPopup(false);
                                         }}
                                         onPointerDown={(e) =>
                                             e.stopPropagation()
                                         }
-                                        className="rounded bg-sky-600 px-4 py-2 text-sm text-white data-hover:bg-sky-500 data-hover:data-active:bg-sky-700"
+                                        className="px-4 py-2 rounded-full bg-blue-500 text-white font-semibold"
                                     >
                                         Save
-                                    </Button>
-                                    <Button
+                                    </button>
+                                    <button
+                                        disabled={loading}
                                         onClick={() => setShowPopup(false)}
                                         onPointerDown={(e) =>
                                             e.stopPropagation()
                                         }
-                                        className="rounded bg-red-600 px-4 py-2 text-sm text-white data-hover:bg-red-500 data-hover:data-active:bg-red-700"
+                                        className="px-4 py-2 rounded-full bg-blue-300 text-white font-semibold"
                                     >
                                         Cancel
-                                    </Button>
+                                    </button>
                                 </div>
+                            </div>
+
+                            <div className="text-center capitalize text-2xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 rounded-lg mb-4">
+                                {word.content}
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="text-lg font-semibold dark:text-white text-gray-800 mb-1">
+                                    Meaning
+                                </h3>
+                                <Textarea
+                                    name="description"
+                                    className="w-full h-36 p-2 mb-2 border-[0.5px] rounded-md data-hover:shadow dark:bg-gray-500"
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    placeholder="Type here to define"
+                                    onChange={(e) =>
+                                        setDefinition(e.target.value)
+                                    }
+                                    value={definition}
+                                    disabled={loading}
+                                />
+                            </div>
+
+                            <div>
+                                <h3 className="text-lg font-semibold dark:text-white text-gray-800 mb-2">
+                                    Examples
+                                </h3>
+
+                                <Textarea
+                                    name="description"
+                                    className="w-full h-32 p-2 mb-2 border-[0.5px] rounded-md data-hover:shadow dark:bg-gray-500"
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    placeholder="Type here to define"
+                                    onChange={(e) =>
+                                        setExamples(e.target.value)
+                                    }
+                                    value={examples}
+                                    disabled={loading}
+                                />
                             </div>
                         </Popup>
                     )}

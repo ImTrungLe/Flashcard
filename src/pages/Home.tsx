@@ -78,7 +78,7 @@ const Home = () => {
                 })}
             </div>
 
-            <div className="w-full h-full bg-white dark:bg-[#161b22] my-16 p-4 rounded shadow-sm transition-colors">
+            <div className="w-full h-full bg-white dark:bg-[#161b22] my-4    p-4 rounded shadow-sm transition-colors">
                 <h4 className="text-xl text-gray-700 dark:text-gray-200 font-semibold">
                     Chart by stage
                 </h4>
