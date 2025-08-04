@@ -1,8 +1,9 @@
 // gemini.ts
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = "AIzaSyAAqInozARiUXBaAJ23HM01CmdHs8OpVyE";
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const apiKey = import.meta.env.VITE_API_KEY;
+
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export async function generateDefinitionAndExamples(word: string) {
     const response = await ai.models.generateContent({
