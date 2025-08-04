@@ -33,6 +33,9 @@ const Words = () => {
         done: [],
     });
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredColumns, setFilteredColumns] = useState(columns);
+
     useEffect(() => {
         console.log(storeWords);
         setColumns({
@@ -41,6 +44,23 @@ const Words = () => {
             done: storeWords.filter((d) => d.stage === "done"),
         });
     }, [storeWords]);
+
+    useEffect(() => {
+        if (searchTerm.trim() === "") {
+            setFilteredColumns(columns);
+        } else {
+            const lowered = searchTerm.toLowerCase();
+            const filtered = Object.fromEntries(
+                Object.entries(columns).map(([stage, items]) => [
+                    stage,
+                    items.filter((item) =>
+                        item.content.toLowerCase().includes(lowered)
+                    ),
+                ])
+            );
+            setFilteredColumns(filtered);
+        }
+    }, [searchTerm, columns]);
 
     const [activeCard, setActiveCard] = useState(null);
     const sensors = useSensors(useSensor(PointerSensor));
@@ -127,6 +147,13 @@ const Words = () => {
                     >
                         Delete all
                     </button>
+                    <input
+                        type="text"
+                        placeholder="Search word..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-200"
+                    />
                 </div>
             </div>
             <DndContext
@@ -136,7 +163,7 @@ const Words = () => {
                 onDragEnd={handleDragEnd}
             >
                 <div className="flex gap-4 p-4">
-                    {Object.entries(columns).map(([colName, items]) => (
+                    {Object.entries(filteredColumns).map(([colName, items]) => (
                         <DroppableColumn key={colName} id={colName}>
                             <WordTitle
                                 label={colName}

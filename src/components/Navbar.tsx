@@ -53,6 +53,7 @@ const Navbar = () => {
                         onChange={handleGetWord}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
+                                console.log(e);
                                 handleAddWord();
                             }
                         }}

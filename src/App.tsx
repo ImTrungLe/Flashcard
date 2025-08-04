@@ -1,7 +1,7 @@
 import { Routes, Route, Outlet } from "react-router-dom";
 import { StoreProvider } from "easy-peasy";
 
-import { Home, Trash, Words, PageNotFound } from "./pages";
+import { Home, Words, PageNotFound } from "./pages";
 import { Sidebar, Navbar } from "./components";
 import MobileSidebar from "./components/MobileSidebar";
 
